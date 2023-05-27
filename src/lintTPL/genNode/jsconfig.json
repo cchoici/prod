@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "#root/*": ["./src/*"] // Tell javascript how to resolve import path, mustuse "#root/" prefix in node.js
+    }
+  }
+}

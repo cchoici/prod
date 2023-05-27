@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"] // Tell javascript how to resolve import path
+    }
+  }
+}

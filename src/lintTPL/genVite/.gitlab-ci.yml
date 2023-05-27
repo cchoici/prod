@@ -1,0 +1,187 @@
+# Cache modules in between jobs
+variables:
+  SERVICE_NAME: "web-fe"
+  DOCKER_REGISTRY: $DOCKER_REGISTRY
+  IMAGE_NAME: ${DOCKER_REGISTRY}/${REPO_PREFIX}${SERVICE_NAME}
+  # NEXUS_NAME: ${NEXUS_REGISTRY}${NEXUS_EDA_DIR}${SERVICE_NAME}
+  
+
+stages:
+  - install
+  - build
+  - deploy
+  - tag
+
+.build:
+  stage: build
+  image: node:18.16.0-buster-slim
+  cache:
+    key: ${CI_COMMIT_REF_NAME}
+    paths:
+      - node_modules/
+    policy: pull
+
+.deploy:
+  stage: deploy
+  image: docker:19.03.8
+  environment:
+    name: $CI_COMMIT_REF_NAME
+  script:
+    - echo $VERSION
+    - echo $PLATFORM
+    - echo $IMAGE_TAG
+    - docker build --no-cache -t $IMAGE_NAME-$PLATFORM:$IMAGE_TAG -t $IMAGE_NAME-$PLATFORM:$LATEST_TAG .
+    - docker push $IMAGE_NAME-$PLATFORM:$IMAGE_TAG
+    - docker push $IMAGE_NAME-$PLATFORM:$LATEST_TAG
+    - apk add curl
+    - curl -X POST -F token=$CD_JOB_TOKEN_V2 -F ref=master -F variables[TARGET]=$TARGET -F variables[TAGS]=eda-update -F variables[DEP_NAME]=$SERVICE_NAME-$PLATFORM -F variables[IMAGE]=$IMAGE_NAME-$PLATFORM:$IMAGE_TAG ${CI_SERVER_URL}/api/v4/projects/${CD_PID}/trigger/pipeline
+
+install:
+  stage: install
+  image: node:18.16.0-buster-slim
+  script:
+    - echo $CI_COMMIT_REF_NAME
+    - echo $IMAGE_NAME
+    - echo $CI_COMMIT_TAG
+    - echo $CI_COMMIT_SHA
+    - echo $CI_SERVER_URL
+    - echo $DOCKER_REGISTRY
+    - echo $CD_PID
+    - echo $SERVICE_NAME
+    # - echo $NEXUS_REGISTRY
+    # - echo $NEXUS_EDA_DIR
+    - npm install -g pnpm@8.4.0
+    - pnpm install --frozen-lockfile
+    - pnpm lint
+    # - npm config set strict-ssl false
+    # - npm config set registry https://nxoss-local.deltaww.com/repository/npm-public/
+    # - npm config list
+    # - npm install 
+  cache:
+    key: ${CI_COMMIT_REF_NAME}
+    paths:
+      - node_modules/
+    policy: pull-push
+    
+# build_branch:
+#   <<: *build_job_template
+#   except:
+#     - /^staging-.*$/
+#     - ci
+#     - staging
+#     - develop
+#     - /^release.*$/
+#     - master
+
+build_node:
+  extends: .build  
+  script:    
+    - VITE_PLATFORM=$PLATFORM VITE_BUILD=$CI_COMMIT_SHA VITE_BASE_URL=/eda/webui npm run build
+  artifacts:
+    paths:
+      - build/
+  only:
+    - node-dev
+    - node-rls
+    # - /^node-release.*/
+  before_script:
+    - export PLATFORM=$(echo ${CI_COMMIT_REF_NAME} | cut -d '-' -f1)
+
+build_master:
+  extends: .build  
+  script:
+    - VITE_PLATFORM=$PLATFORM VITE_BUILD=$CI_COMMIT_SHA VITE_BASE_URL=/eda/master/webui/ npm run build
+  artifacts:
+    paths:
+      - build/
+  only:
+    - master-dev
+    - master-rls
+    # - /^master-release.*/
+  before_script:
+    - export PLATFORM=$(echo ${CI_COMMIT_REF_NAME} | cut -d '-' -f1)
+
+# tag_docker_img:
+#   stage: tag
+#   image: docker:19.03.8
+#   only:
+#     - tags
+#     - /^dcs.*/
+#   variables:
+#     IMAGE_TAG: $CI_COMMIT_REF_NAME
+#   before_script:
+#   - docker login -u $NEXUS_USER -p $NEXUS_PWD $NEXUS_REGISTRY
+#   script:
+#   - docker build --no-cache -f app.Dockerfile -t $NEXUS_NAME:$IMAGE_TAG .
+#   - echo $NEXUS_NAME:$IMAGE_TAG
+#   - docker push $NEXUS_NAME:$IMAGE_TAG
+#   after_script:
+#   - docker logout $NEXUS_REGISTRY
+
+deploy_node_develop:
+  extends: .deploy
+  only:
+    - node-dev
+  variables: 
+    # pre-defined var: develop
+    TARGET: develop
+  before_script:
+    - export PLATFORM=$(echo ${CI_COMMIT_REF_NAME} | cut -d '-' -f1)
+    - export VERSION=$(echo $(cat package.json | sed 's/"version"/\n"version"/g' | grep '"version"' | cut -d'"' -f4))
+    - export IMAGE_TAG=$VERSION.develop
+    - export LATEST_TAG=latest.develop
+
+deploy_node_stage:
+  extends: .deploy
+  only:
+    - node-rls
+    #- /^node-release.*/
+  variables: 
+    # pre-defined var: stage
+    TARGET: stage
+  before_script:
+    - export PLATFORM=$(echo ${CI_COMMIT_REF_NAME} | cut -d '-' -f1)
+    - export VERSION=$(echo $(cat package.json | sed 's/"version"/\n"version"/g' | grep '"version"' | cut -d'"' -f4))
+    #- export IMAGE_TAG=$(echo ${CI_COMMIT_REF_NAME} | cut -d '/' -f2).node-release
+    - export IMAGE_TAG=$VERSION.release
+    - export LATEST_TAG=latest.release
+
+deploy_master_dev:
+  extends: .deploy
+  only:
+    - master-dev
+  variables: 
+    # pre-defined var: master-develop
+    TARGET: master-develop
+  before_script:
+    - export PLATFORM=$(echo ${CI_COMMIT_REF_NAME} | cut -d '-' -f1)
+    - export VERSION=$(echo $(cat package.json | sed 's/"version"/\n"version"/g' | grep '"version"' | cut -d'"' -f4))
+    - export IMAGE_TAG=$VERSION.develop
+    - export LATEST_TAG=latest.develop
+
+deploy_master_stage:
+  extends: .deploy
+  only:
+    - master-rls
+    #- /^node-release.*/
+  variables: 
+    # pre-defined var: stage
+    TARGET: master-stage
+  before_script:
+    - export PLATFORM=$(echo ${CI_COMMIT_REF_NAME} | cut -d '-' -f1)
+    - export VERSION=$(echo $(cat package.json | sed 's/"version"/\n"version"/g' | grep '"version"' | cut -d'"' -f4))
+    #- export IMAGE_TAG=$(echo ${CI_COMMIT_REF_NAME} | cut -d '/' -f2).node-release
+    - export IMAGE_TAG=$VERSION.release
+    - export LATEST_TAG=latest.release
+
+
+# deploy:
+#   <<: *deploy
+#   dependencies:
+#     - build_web_node
+#   only:
+#     - /^staging-.*$/
+#     - ci
+#     - staging
+#     - master
+
