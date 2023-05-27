@@ -1,0 +1,5 @@
+{
+  "*.{json,css,md}": "prettier --write --config .prettierrc",
+  "*.mjs": "eslint" ,
+  "*.jsx": "eslint" 
+} 

@@ -9,7 +9,8 @@
   "scripts": {
     "start": "node main.mjs",
     "lint": "eslint src",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pre-commit": "lint-staged"
   },
   "author": "",
   "license": "ISC",
@@ -19,6 +20,8 @@
     "eslint-config-prettier": "8.8.0",
     "eslint-plugin-import": "2.27.5",
     "eslint-plugin-prettier": "4.2.1",
+    "husky": "8.0.3",
+    "lint-staged": "13.2.2",
     "prettier": "2.8.8",
     "unbuild": "1.2.1"
   },
