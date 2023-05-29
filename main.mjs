@@ -6,6 +6,7 @@ import Msg from '#root/util/Msg.mjs';
 const SELECT = {
   REACT: 'react/component',
   LINT: 'lint',
+  DOCKER: 'docker',
   CHECK: 'check',
   PROJECT: 'project',
 };
@@ -18,6 +19,7 @@ const questions = [
     initial: 0,
     choices: [
       { title: 'Create react component template', value: SELECT.REACT },
+      { title: 'Docker enabled in project', value: SELECT.DOCKER },
       { title: 'Check staged files before commit', value: SELECT.CHECK },
       { title: 'Add lint in project', value: SELECT.LINT },
       { title: 'Create new project', value: SELECT.PROJECT },
