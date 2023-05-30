@@ -1,5 +1,4 @@
 dist
 node_modules
 .vscode
-src/compTPL/gen
-src/lintTPL/gen*
+gen*

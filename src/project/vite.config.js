@@ -1,7 +1,8 @@
-/* eslint-disable no-undef */
-import { loadEnv, defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+/* eslint-disable */
 import { resolve } from 'path';
+
+import react from '@vitejs/plugin-react{{ bundleType }}';
+import { loadEnv, defineConfig } from 'vite';
 import svgr from 'vite-plugin-svgr'; // for svg as a ReactComponent
 
 export default ({ mode }) => {
@@ -16,16 +17,16 @@ export default ({ mode }) => {
     server: {
       open: true,
       port: 3311,
-      proxy: {
-        '/eda/master/web/api': {
-          target: 'http://10.136.217.103:80',
-          changeOrigin: true,
-        },
-        '/eda/web/api': {
-          target: 'http://10.136.217.103:80',
-          changeOrigin: true,
-        },
-      },
+      // proxy: {
+      //   '/eda/master/web/api': {
+      //     target: 'http://10.136.217.103:80',
+      //     changeOrigin: true,
+      //   },
+      //   '/eda/web/api': {
+      //     target: 'http://10.136.217.103:80',
+      //     changeOrigin: true,
+      //   },
+      // },
     },
     esbuild: {
       loader: 'jsx',
