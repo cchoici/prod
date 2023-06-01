@@ -133,9 +133,10 @@ const runTask = async () => {
         Msg.pass('add basic settings');
         Msg.start('add basic packages');
         const pkgs = [
-          'vite-plugin-svgr@3.2.0',
+          'vite-plugin-svgr@3.2.0', // for svg support
           'react-router-dom@6.11.2',
           '@emotion/css@11.11.0',
+          'ramda@0.28.0',
         ];
         await execCmd(`pnpm add ${pkgs.join(' ')} -E`);
         Msg.pass('add basic packages');
