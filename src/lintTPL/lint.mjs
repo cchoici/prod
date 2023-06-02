@@ -71,6 +71,7 @@ const runTask = async () => {
         'eslint-config-prettier@8.8.0',
         'eslint-plugin-prettier@4.2.1',
         'eslint-plugin-import@2.27.5', // for order import
+        'eslint-import-resolver-custom-alias@1.3.2', // for alias to eslint-plugin-import
       ];
       if (env === 'Node') {
         pkgs.push(
