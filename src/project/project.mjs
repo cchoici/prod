@@ -128,7 +128,6 @@ const runTask = async () => {
           bundleType: template.indexOf('swc') >= 0 ? '-swc' : '',
         };
         const file = await tf.renderFile(`${__dirname}/vite.config.js`, opts);
-        console.log(file);
         await fse.writeFileSync('./vite.config.js', file, { overwrite: true });
         Msg.pass('add basic settings');
         Msg.start('add basic packages');
@@ -137,6 +136,8 @@ const runTask = async () => {
           'react-router-dom@6.11.2',
           '@emotion/css@11.11.0',
           'ramda@0.28.0',
+          '@mui/material@5.12.3',
+          '@mui/icons-material@5.11.16',
         ];
         await execCmd(`pnpm add ${pkgs.join(' ')} -E`);
         Msg.pass('add basic packages');
