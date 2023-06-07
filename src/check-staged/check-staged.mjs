@@ -42,7 +42,6 @@ const runTask = async () => {
 
   const onSubmit = async (prompt, answer) => {
     if (prompt.name === 'path') _path = answer;
-    if (prompt.name === 'name') _name = answer;
   };
   Msg.alert(
     'Prerequisites: eslint & prettier pkgs installed & under git control repo',
@@ -58,15 +57,15 @@ const runTask = async () => {
       Msg.pass('point to target folder');
 
       Msg.start('add lint-staged & husky pkgs');
-      await execCmd('pnpm add husky lint-staged -E -D');
+      await execCmd('pnpm add husky@8.0.3 lint-staged@13.2.2 -D');
       Msg.pass('add husky & lint-staged pkgs');
-      Msg.start('set lint-staged & husky setting');
+      Msg.start('set lint-staged & husky settings');
       await fse.copySync(`${__dirname}\\gen`, path, { overwrite: true });
-      await execCmd('pnpm pkg set scripts.pre-commit="lint-staged');
+      await execCmd('pnpm pkg set scripts.pre-commit="lint-staged"');
       await execCmd('npx husky install');
       await execCmd('npx husky add .husky/pre-commit "pnpm pre-commit"');
       await execCmd('git add .husky/pre-commit');
-      Msg.pass('sset lint-staged & husky setting');
+      Msg.pass('set lint-staged & husky settings');
       Msg.end();
     } catch (err) {
       console.error(err);

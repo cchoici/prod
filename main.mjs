@@ -41,6 +41,9 @@ const runTask = async () => {
     case SELECT.REACT:
       command = 'node src/compTPL/react.mjs';
       break;
+    case SELECT.DOCKER:
+      command = 'node src/docker/docker.mjs';
+      break;
     case SELECT.CHECK:
       command = 'node src/check-staged/check-staged.mjs';
       break;
