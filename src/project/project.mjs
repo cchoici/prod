@@ -138,6 +138,7 @@ const runTask = async () => {
           'ramda@0.28.0',
           '@mui/material@5.12.3',
           '@mui/icons-material@5.11.16',
+          'prop-types@15.8.1',
         ];
         await execCmd(`pnpm add ${pkgs.join(' ')} -E`);
         Msg.pass('add basic packages');
