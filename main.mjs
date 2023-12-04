@@ -9,6 +9,7 @@ const SELECT = {
   DOCKER: 'docker',
   CHECK: 'check',
   PROJECT: 'project',
+  WINDOW: 'window',
 };
 
 const questions = [
@@ -18,11 +19,12 @@ const questions = [
     message: 'What do you want?',
     initial: 0,
     choices: [
+      { title: 'Create new project', value: SELECT.PROJECT },
+      { title: 'Add lint in project', value: SELECT.LINT },
+      { title: 'Check staged files before commit', value: SELECT.CHECK },
+      { title: 'Change Windows settings', value: SELECT.WINDOW },
       { title: 'Create react component template', value: SELECT.REACT },
       { title: 'Docker enabled in project', value: SELECT.DOCKER },
-      { title: 'Check staged files before commit', value: SELECT.CHECK },
-      { title: 'Add lint in project', value: SELECT.LINT },
-      { title: 'Create new project', value: SELECT.PROJECT },
       { title: 'Do nothing', value: '' },
     ],
   },
@@ -38,21 +40,25 @@ const runTask = async () => {
   // const type = task.split("/")[0];
   let command = '';
   switch (task) {
+    case SELECT.PROJECT:
+      command = 'node src/project/project.mjs';
+      break;
+    case SELECT.LINT:
+      command = 'node src/lintTPL/lint.mjs';
+      break;
+    case SELECT.CHECK:
+      command = 'node src/check-staged/check-staged.mjs';
+      break;
+    case SELECT.WINDOW:
+      command = 'node src/window/default.mjs';
+      break;
     case SELECT.REACT:
       command = 'node src/compTPL/react.mjs';
       break;
     case SELECT.DOCKER:
       command = 'node src/docker/docker.mjs';
       break;
-    case SELECT.CHECK:
-      command = 'node src/check-staged/check-staged.mjs';
-      break;
-    case SELECT.LINT:
-      command = 'node src/lintTPL/lint.mjs';
-      break;
-    case SELECT.PROJECT:
-      command = 'node src/project/project.mjs';
-      break;
+
     default:
       command = 'node src/test/test.mjs';
   }

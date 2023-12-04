@@ -138,6 +138,7 @@ const runTask = async () => {
           '@emotion/react@11.11.1',
           'ramda@0.28.0',
           '@mui/material@5.12.3',
+          '@emotion/styled@11.11.0',
           '@mui/icons-material@5.11.16',
           'prop-types@15.8.1',
         ];
