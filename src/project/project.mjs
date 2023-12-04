@@ -135,6 +135,7 @@ const runTask = async () => {
           'vite-plugin-svgr@3.2.0', // for svg support
           'react-router-dom@6.11.2',
           '@emotion/css@11.11.0',
+          '@emotion/react@11.11.1',
           'ramda@0.28.0',
           '@mui/material@5.12.3',
           '@mui/icons-material@5.11.16',
