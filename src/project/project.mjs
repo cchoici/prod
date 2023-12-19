@@ -136,7 +136,7 @@ const runTask = async () => {
           'react-router-dom@6.11.2',
           '@emotion/css@11.11.0',
           '@emotion/react@11.11.1',
-          'ramda@0.28.0',
+          'ramda@0.29.1',
           '@mui/material@5.12.3',
           '@emotion/styled@11.11.0',
           '@mui/icons-material@5.11.16',
