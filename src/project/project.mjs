@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import fse from 'fs-extra';
 import c from 'kleur';
 import prompts from 'prompts';
+import * as R from 'ramda';
 import tf from 'template-file';
 
 import execCmd from '#root/util/execCmd.mjs';
@@ -31,23 +32,33 @@ const questions = [
   {
     type: 'text',
     name: 'path',
-    message: 'Waht folder path do you want to gen?',
+    message: 'What parent folder path do you want to gen?',
   },
   {
     type: 'text',
     name: 'name',
     message: 'What is your project name?',
   },
-
   {
     type: () => (_env === 'Vite' ? 'select' : null),
     name: 'template',
     message: 'Which template do you choose?',
     initial: 0,
     choices: [
+      { title: 'vanilla', value: 'vanilla' },
       { title: 'react', value: 'react' },
-      // { title: 'react ts', value: 'react-ts' },
       { title: 'react + swc', value: 'react-swc' },
+      // { title: 'react ts + swc', value: 'react-swc-ts' },
+    ],
+  },
+  {
+    type: () => (_env === 'Vite' ? 'select' : null),
+    name: 'withTS',
+    message: 'Is the project with using Typescript?',
+    initial: 0,
+    choices: [
+      { title: 'Without ts', value: '' },
+      { title: 'With ts', value: '-ts' },
       // { title: 'react ts + swc', value: 'react-swc-ts' },
     ],
   },
@@ -79,10 +90,13 @@ const runTask = async () => {
     if (prompt.name === 'name') _name = answer;
   };
 
-  const { path, name, env, template, confirm } = await prompts(questions, {
-    onCancel,
-    onSubmit,
-  });
+  const { path, name, env, template, withTS, confirm } = await prompts(
+    questions,
+    {
+      onCancel,
+      onSubmit,
+    },
+  );
   if (confirm) {
     try {
       Msg.start('point to target folder');
@@ -90,9 +104,9 @@ const runTask = async () => {
       Msg.pass('point to target folder');
       if (env === 'Vite') {
         Msg.start('create the project');
-        console.log('name:', name, '  ', template);
-        await execCmd(`pnpm create vite ${name} --template ${template}`);
-
+        await execCmd(
+          `pnpm create vite ${name} --template ${template}${withTS}`,
+        );
         process.chdir(`./${name}`);
       }
       if (env === 'Node') {
@@ -123,27 +137,45 @@ const runTask = async () => {
       // await execCmd('pnpm install');
       if (env === 'Vite') {
         Msg.start('add basic settings');
-        await fse.copySync(`${__dirname}\\gen${env}`, './', {
+        const getLib = R.pipe(
+          R.split('-'),
+          R.pipe(
+            R.head,
+            R.converge(R.concat, [R.pipe(R.head, R.toUpper), R.tail]),
+          ),
+        )(template);
+
+        await fse.copySync(`${__dirname}\\gen${env}${getLib}`, './', {
           overwrite: true,
         });
         const opts = {
           bundleType: template.indexOf('swc') >= 0 ? '-swc' : '',
         };
-        const file = await tf.renderFile(`${__dirname}/vite.config.js`, opts);
-        await fse.writeFileSync('./vite.config.js', file, { overwrite: true });
+        if (getLib === 'React') {
+          const file = await tf.renderFile(`${__dirname}/vite.config.js`, opts);
+          await fse.writeFileSync('./vite.config.js', file, {
+            overwrite: true,
+          });
+        }
         Msg.pass('add basic settings');
         Msg.start('add basic packages');
-        const pkgs = [
+        const pkgs = R.concat(
+          getLib === 'React'
+            ? [
+                'react-router-dom@6.11.2',
+                '@emotion/react@11.11.1',
+                '@mui/material@5.12.3',
+                '@emotion/styled@11.11.0',
+                'prop-types@15.8.1',
+              ]
+            : [],
+        )([
           'vite-plugin-svgr@3.2.0', // for svg support
-          'react-router-dom@6.11.2',
-          '@emotion/css@11.11.0',
-          '@emotion/react@11.11.1',
+          '@emotion/css@11.11.1',
           'ramda@0.29.1',
-          '@mui/material@5.12.3',
           '@emotion/styled@11.13.0',
-          '@mui/icons-material@5.11.16',
-          'prop-types@15.8.1',
-        ];
+        ]);
+
         await execCmd(`pnpm add ${pkgs.join(' ')}`);
         Msg.pass('add basic packages');
       }
