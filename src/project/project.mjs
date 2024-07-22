@@ -90,7 +90,9 @@ const runTask = async () => {
       Msg.pass('point to target folder');
       if (env === 'Vite') {
         Msg.start('create the project');
+        console.log('name:', name, '  ', template);
         await execCmd(`pnpm create vite ${name} --template ${template}`);
+
         process.chdir(`./${name}`);
       }
       if (env === 'Node') {
@@ -118,7 +120,7 @@ const runTask = async () => {
         Msg.pass('set importing by alias path & using ES6 in Node');
       }
       Msg.start('pnpm install');
-      await execCmd('pnpm install');
+      // await execCmd('pnpm install');
       if (env === 'Vite') {
         Msg.start('add basic settings');
         await fse.copySync(`${__dirname}\\gen${env}`, './', {
@@ -136,13 +138,13 @@ const runTask = async () => {
           'react-router-dom@6.11.2',
           '@emotion/css@11.11.0',
           '@emotion/react@11.11.1',
-          'ramda@0.28.0',
+          'ramda@0.29.1',
           '@mui/material@5.12.3',
-          '@emotion/styled@11.11.0',
+          '@emotion/styled@11.13.0',
           '@mui/icons-material@5.11.16',
           'prop-types@15.8.1',
         ];
-        await execCmd(`pnpm add ${pkgs.join(' ')} -E`);
+        await execCmd(`pnpm add ${pkgs.join(' ')}`);
         Msg.pass('add basic packages');
       }
       Msg.end();
