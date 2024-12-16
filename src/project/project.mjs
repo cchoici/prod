@@ -171,7 +171,7 @@ const runTask = async () => {
             : [],
         )([
           'vite-plugin-svgr@3.2.0', // for svg support
-          '@emotion/css@11.11.1',
+          '@emotion/css@11.11.0',
           'ramda@0.29.1',
           '@emotion/styled@11.13.0',
         ]);

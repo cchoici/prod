@@ -14,9 +14,6 @@ importers:
       kleur:
         specifier: 4.1.5
         version: 4.1.5
-      prod:
-        specifier: 'link:'
-        version: 'link:'
       prompts:
         specifier: 2.4.2
         version: 2.4.2
